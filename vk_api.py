@@ -15,7 +15,7 @@ VERSION      = 5.103
 def thread(my_func):
     def wrapper(*args, **kwargs):
         my_thread = threading.Thread (target=my_func, args=args, kwargs=kwargs)
-        my_thread.start ()
+        my_thread.start()
 
     return wrapper
 
@@ -103,11 +103,11 @@ class User:
         max_count_of_friends = 0
         max_friends_id = 0
 
-        friends_list = self.get_friends(self.id)
+        friends_list = self.get_friends()
 
         for friend in friends_list:
             try:
-                common_f_count = len(self.get_common_friends(self.id, friend))
+                common_f_count = len(User(self.id) & User(friend))
                 friend_id = User(friend).id
 
                 if common_f_count > max_count_of_friends:
@@ -141,4 +141,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    Evgeniy = User(171691064)
+
+    Evgeniy.get_most_of_common_friends()
