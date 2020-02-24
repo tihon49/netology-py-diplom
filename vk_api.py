@@ -2,6 +2,7 @@ from config import *
 import requests
 from pprint import pprint
 import threading
+import time
 
 
 
@@ -84,6 +85,27 @@ class User:
         return friends_id
 
 
+
+    # получаем список групп в ктороых состоит только данный пользователь
+    def get_uniq_grous(self):
+        self.groups = self.get_groups_names()
+
+        for friend in self.get_friends():
+            friend = User(friend)
+            
+            for group in self.groups:
+                try:
+                    if group in friend.get_groups_names():
+                        try:
+                            self.groups.remove(group)
+                        except:
+                            pass
+                except:
+                    pass
+        return self.groups
+
+
+
     # получаем список друзей онлайн. type => dict
     def get_friends_online(self):
         url = 'https://api.vk.com/method/friends.getOnline?v=5.52&access_token='
@@ -142,6 +164,13 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    Evgeniy = User(171691064)
+    VitalS = User(4431184)
+    Tihon  = User(MY_USER_ID)
 
-    Evgeniy.get_most_of_common_friends()
+
+    pprint(len(Tihon.get_groups_names()))
+    pprint(Tihon.get_groups_names())
+    print()
+    user_groups = Tihon.get_uniq_grous()
+    print(len(user_groups))
+    pprint(user_groups)
