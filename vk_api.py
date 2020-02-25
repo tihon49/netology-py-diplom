@@ -2,7 +2,6 @@ from config import *
 import requests
 from pprint import pprint
 import threading
-import time
 
 
 
@@ -24,7 +23,22 @@ def thread(my_func):
 # Задача №1
 class User:
     def __init__(self, id):
-        self.id = id
+        # если указан не id, а строковой аналог, приводим его к числовому id
+        try:
+            self.id = id
+            if str(self.id).isdigit():
+                pass
+            else:
+                url = 'https://api.vk.com/method/users.get'
+                params = {'access_token': access_token,
+                          'user_ids': self.id,
+                          'v': VERSION
+                         }
+
+                data = self.get_response(url, params)
+                self.id = data['response'][0]['id']
+        except:
+            print('Not valid data')
 
 
     # Задача №3
@@ -43,8 +57,11 @@ class User:
         for friend in user_1_friends:
             if friend in user_2_friends:
                 common_friends.append(User(friend))
- 
-        return common_friends
+        
+        if common_friends:
+            return common_friends
+        else:
+            return 'у данных пользователей нет общих групп'
 
 
     # отправка request'a / получение response'а
@@ -60,13 +77,14 @@ class User:
         params = {'access_token': access_token,
                   'user_id': self.id,
                   'extended': 1,
+                  'fields': 'members_count,counters,contacts,city,country',
                   'count': 1000,
                   'v': VERSION
                   }
 
         data = self.get_response(url, params)
         groups = data['response']['items']
-        return [group['name'] for group in groups]
+        return groups # [group['name'] for group in groups]
 
 
     # получаем список с друзьями. type => list
@@ -85,12 +103,14 @@ class User:
         return friends_id
 
 
-
     # получаем список групп в ктороых состоит только данный пользователь
     def get_uniq_grous(self):
         self.groups = self.get_groups_names()
+        counter = len(self.get_friends())
 
         for friend in self.get_friends():
+            print(f'осталось обработать {counter} друзей')
+            counter -= 1
             friend = User(friend)
             
             for group in self.groups:
@@ -102,13 +122,13 @@ class User:
                             pass
                 except:
                     pass
-        return self.groups
 
+        return self.groups
 
 
     # получаем список друзей онлайн. type => dict
     def get_friends_online(self):
-        url = 'https://api.vk.com/method/friends.getOnline?v=5.52&access_token='
+        url = 'https://api.vk.com/method/friends.getOnline'
         params = {
                  'access_token': access_token,
                  'v': VERSION,
@@ -143,8 +163,8 @@ class User:
         print(f'\nбольше всего общих друзей с пользователем: id{max_friends_id} - {max_count_of_friends}')
 
 
-
-def main():
+# функция к домашнему заданию
+def homeWork():
     try:
         user_input = input('введите два id номера через пробел для поиска общих друзей: ').split()
         user1 = User(int(user_input[0]))
@@ -161,16 +181,25 @@ def main():
         print(f'error: {e}')
 
 
+def main():
+    Evgeniy = User('eshmargunov')
+    Evgeniy_uniq_groups = Evgeniy.get_uniq_grous()
+    list_to_return = []
+
+    for group in Evgeniy_uniq_groups:
+        data = {'name': group['name'],
+                'gid' : group['id'],
+                'members_count': group['members_count']}
+        list_to_return.append(data)
+
+    with open('out.json', 'w') as f:
+        f.write(str(list_to_return))
+
+    print('Done')
+
+
+
+    
 
 if __name__ == '__main__':
-    # main()
-    VitalS = User(4431184)
-    Tihon  = User(MY_USER_ID)
-
-
-    pprint(len(Tihon.get_groups_names()))
-    pprint(Tihon.get_groups_names())
-    print()
-    user_groups = Tihon.get_uniq_grous()
-    print(len(user_groups))
-    pprint(user_groups)
+    main()
