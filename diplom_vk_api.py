@@ -2,6 +2,7 @@ from config import *
 import requests
 from pprint import pprint
 import time
+import json
 
 
 
@@ -102,8 +103,8 @@ class User:
             print('Done')
             print('данный пользователь не состоит ни в одной "уникальной" группе')
         else:
-            with open('groups.json', 'w') as f:
-                f.write(str(uniq_groups))
+            with open('groups.json', 'w', encoding='utf8') as f:
+                json.dump(uniq_groups, f, ensure_ascii=False)
 
             print('Done')
             print(f'всего "уникальных" групп найдено: {len(uniq_groups)}')
