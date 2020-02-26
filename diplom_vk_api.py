@@ -65,8 +65,8 @@ class User:
         return data
 
 
-    # получаем друзей из группы
-    def get_group_contacts(self, g_id):
+    # получаем количество друзей из группы
+    def get_group_contacts_count(self, g_id):
         url = 'https://api.vk.com/method/groups.getMembers'
         params = {'access_token': access_token,
                   'group_id': g_id,
@@ -75,7 +75,39 @@ class User:
                   }
 
         data = self.get_response(url, params=params)
-        return data
+        return data['response']['count']
+
+    # получаем список групп в ктороых состоит только данный пользователь
+    def get_uniq_groups(self):
+        groups_list = self.get_groups_names()
+        uniq_groups = []
+        print(f'всего групп найдено: {len(groups_list)}')
+
+        try:
+            for group in groups_list:
+                print('.', end='')
+                time.sleep(1)
+                count_of_friends = self.get_group_contacts_count(group['id'])
+
+                if count_of_friends == 0:
+                    g_data = {'name': group['name'],
+                              'gid' : group['id'],
+                              'members_count': group['members_count']
+                              }
+                    uniq_groups.append(g_data)
+        except: 
+            pass
+
+        if len(uniq_groups) == 0:
+            print('Done')
+            print('данный пользователь не состоит ни в одной "уникальной" группе')
+        else:
+            with open('groups.json', 'w') as f:
+                f.write(str(uniq_groups))
+
+            print('Done')
+            print(f'всего "уникальных" групп найдено: {len(uniq_groups)}')
+            print('В папке со скриптом появился файл "groups.json"\nв котором записаны уникальные группы пользователя.')
 
 
     # получаем список групп пользователя. type => list
@@ -114,52 +146,7 @@ class User:
         data = self.get_response(url, params)
         friends_id = [friend['id'] for friend in data['response']['items']]
         return friends_id
-
-
-    # получаем список групп в ктороых состоит только данный пользователь
-    def get_uniq_groups(self):
-        url = 'https://api.vk.com/method/groups.getMembers'
-        groups_list = self.get_groups_names()
-        uniq_groups = []
-
-        print(f'всего групп найдено: {len(groups_list)}')
-
-        try:
-            for group in groups_list:
-                print('.', end='')
-                g_id = group['id']
-                time.sleep(1)
-                params = {'access_token': access_token,
-                          'group_id': g_id,
-                          'filter': 'friends',
-                          'v': VERSION
-                          }
-
-                data = self.get_response(url, params=params)
-                count_of_friends = data['response']['count']
-
-                if count_of_friends == 0:
-                    g_data = {'name': group['name'],
-                              'gid' : group['id'],
-                              'members_count': group['members_count']
-                              }
-                    uniq_groups.append(g_data)
-        except: 
-            pass
-
-        if len(uniq_groups) == 0:
-            print('Done')
-            print('данный пользователь не состоит ни в одной "уникальной" группе')
-        else:
-            with open('groups.json', 'w') as f:
-                f.write(str(uniq_groups))
-
-            print('Done')
-            print(f'всего "уникальных" групп найдено: {len(uniq_groups)}')
-            print('В папке со скриптом появился файл "groups.json"\nв котором записаны уникальные группы пользователя.')
-        
-
-
+   
 
     # получаем список друзей онлайн. type => dict
     def get_friends_online(self):
