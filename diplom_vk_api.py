@@ -117,17 +117,48 @@ class User:
 
 
     # получаем список групп в ктороых состоит только данный пользователь
-    def get_uniq_groups(self, g_id):
+    def get_uniq_groups(self):
         url = 'https://api.vk.com/method/groups.getMembers'
-        params = {'access_token': access_token,
-                  'group_id': g_id,
-                  'filter': 'friends',
-                  'v': VERSION
-                  }
+        groups_list = self.get_groups_names()
+        uniq_groups = []
 
-        data = self.get_response(url, params=params)
-        count_of_friends = data['response']['count']
-        return count_of_friends
+        print(f'всего групп найдено: {len(groups_list)}')
+
+        try:
+            for group in groups_list:
+                print('.', end='')
+                g_id = group['id']
+                time.sleep(1)
+                params = {'access_token': access_token,
+                          'group_id': g_id,
+                          'filter': 'friends',
+                          'v': VERSION
+                          }
+
+                data = self.get_response(url, params=params)
+                count_of_friends = data['response']['count']
+
+                if count_of_friends == 0:
+                    g_data = {'name': group['name'],
+                              'gid' : group['id'],
+                              'members_count': group['members_count']
+                              }
+                    uniq_groups.append(g_data)
+        except: 
+            pass
+
+        if len(uniq_groups) == 0:
+            print('Done')
+            print('данный пользователь не состоит ни в одной "уникальной" группе')
+        else:
+            with open('groups.json', 'w') as f:
+                f.write(str(uniq_groups))
+
+            print('Done')
+            print(f'всего "уникальных" групп найдено: {len(uniq_groups)}')
+            print('В папке со скриптом появился файл "groups.json"\nв котором записаны уникальные группы пользователя.')
+        
+
 
 
     # получаем список друзей онлайн. type => dict
@@ -183,44 +214,8 @@ def homeWork():
             # вывод общих друзей в виде экземпляров класса с помощью метода  __and__(self, other)
             pprint(user1 & user2)
 
-            # выводим ссылку на профиль пользователя с помощью метода  __str__(self)
-            print(f'\nссылка на пользователя №1: {user1}')
-            print(f'ссылка на пользователя №2: {user2}')
-
     except:
         print('введены не верные данные')
-
-
-
-# функция к дипломной работе
-def diplom_homework(user_name):
-    groups_list = user_name.get_groups_names()
-    uniq_groups = []
-
-    try:
-        for group in groups_list:
-            print('.', end='')
-            g_id = group['id']
-            time.sleep(1)
-            if user_name.get_uniq_groups(g_id) == 0:
-                data = {'name': group['name'],
-                        'gid' : group['id'],
-                        'members_count': group['members_count']
-                        }
-                uniq_groups.append(data)
-    except:
-        pass
-
-    if len(uniq_groups) == 0:
-        print('Done')
-        print('данный пользователь не состоит ни в одной "уникальной" группе')
-    else:
-        with open('groups.json', 'w') as f:
-            f.write(str(uniq_groups))
-
-        print('Done')
-        print(f'найдено {len(uniq_groups)} "уникальных" групп(ы)')
-        print('В папке со скриптом появился файл "groups.json"\nв котором записаны уникальные группы пользователя.')
 
 
 
@@ -248,12 +243,10 @@ def main(u_input, info):
         elif u_input == 5:
             pprint(get_profile().get_friends_online())
         elif u_input == 6:
-            diplom_homework(get_profile())
+            get_profile().get_uniq_groups()
         elif u_input == 7:
-            user = get_profile()
-            user.get_most_of_common_friends()
-        elif u_input == 8:
-            diplom_homework()
+            get_profile().get_most_of_common_friends()
+
     except ValueError:
         print('просьба вводить только цифры')
 
@@ -263,7 +256,7 @@ if __name__ == '__main__':
     info = '''
 вызвать данное меню еще раз ............................. : 0
 получить список общих друзей у двух пользователей (ДЗ)... : 1
-получить ссылку на профиль в вк ......................... : 2
+получить ссылку на профиль в вк ..................(ДЗ)... : 2
 получить список названий всех групп пользователя ........ : 3
 получить список id всех друзей .......................... : 4
 получить список id друзей онлайн ........................ : 5
