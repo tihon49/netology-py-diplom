@@ -130,10 +130,12 @@ class User:
 
     # получаем список с друзьями. type => list
     def get_friends(self):
-        url = f'https://api.vk.com/method/friends.get'
+        url = f'https://api.vk.com/method/friends.get/execute'
+        code = ''
         params = {'access_token': access_token,
                   'v': VERSION,
                   'user_id': self.id,
+                  'code': code,
                   'order': 'hints',
                   'fields': 'nickname,domain,city,photo_200_orig,online',
                   'name_case': 'nom'
