@@ -66,7 +66,7 @@ class User:
         return data
 
 
-    # получаем количество друзей из группы
+    # получаем количество друзей из группы. type => int
     def get_group_contacts_count(self, g_id):
         url = 'https://api.vk.com/method/groups.getMembers'
         params = {'access_token': access_token,
@@ -78,7 +78,7 @@ class User:
         data = self.get_response(url, params=params)
         return data['response']['count']
 
-    # получаем список групп в ктороых состоит только данный пользователь
+    # получаем список групп в ктороых состоит только данный пользователь. typy => dict
     def get_uniq_groups(self):
         groups_list = self.get_groups_names()
         uniq_groups = []
@@ -163,7 +163,6 @@ class User:
 
 
     # найти друга с которым больше всего общих друзей
-    # @thread  # когда включены потоки, в терминале не отображается ход программы...
     def get_most_of_common_friends(self):
         print('просьба набраться терпения, это может занять несколько минут.')
         max_count_of_friends = 0
