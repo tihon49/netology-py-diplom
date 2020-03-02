@@ -214,7 +214,7 @@ def get_profile():
 
 
 def main(u_input, info):
-    if u_input not in range(10):
+    if u_input not in range(9):
         print('введена не верная команда')
     elif u_input == 0:
         print(info)
