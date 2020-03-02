@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from config import *
 import requests
 from pprint import pprint
@@ -125,7 +127,7 @@ class User:
             print(f"возникла ошибка с кодом: {data['error']['error_code']}")
             return 'не валидный id'
         else:
-            groups = data['response']['items']
+            groups = [group['name'] for group in data['response']['items']]
             return groups
 
     # получаем список с друзьями. type => list
