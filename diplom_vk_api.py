@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from config import *
 import requests
 from pprint import pprint
@@ -127,7 +125,7 @@ class User:
             print(f"возникла ошибка с кодом: {data['error']['error_code']}")
             return 'не валидный id'
         else:
-            groups = [group['name'] for group in data['response']['items']]
+            groups = data['response']['items']
             return groups
 
     # получаем список с друзьями. type => list
@@ -216,7 +214,7 @@ def get_profile():
 
 
 def main(u_input, info):
-    if u_input not in range(9):
+    if u_input not in range(10):
         print('введена не верная команда')
     elif u_input == 0:
         print(info)
